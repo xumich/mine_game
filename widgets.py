@@ -1,3 +1,5 @@
+#coding = utf-8
+
 import  tkinter as tk
 
 from tkinter import messagebox
@@ -245,13 +247,13 @@ class TextViewer(tk.Toplevel):
             
             self.title(title)
             
-            self.protocol("WM_DELETE_WINDOW", self.ok)
+            self.protocol("WM_DELETE_WINDOW", self.ok) #绑定用户点击关闭按钮事件
             
             self.parent = parent
             
-            self.bind('<Return>', self.ok)
+            self.bind('<Return>', self.ok) #绑定键盘回车事件
             
-            self.bind('<Escape>', self.ok)
+            self.bind('<Escape>', self.ok) #绑定键盘退出事件
             
             
             frame_text = tk.Frame(self, relief = tk.SUNKEN, height = 700)
@@ -284,9 +286,9 @@ class TextViewer(tk.Toplevel):
             
             if modal:
                 
-                self.transient(parent)
+                self.transient(parent) #通知parent window，此视图必须一直出现在parent的顶层。
                 
-                self.grab_set()
+                self.grab_set() #grab_set ensures that all of the application's events are sent to self until a corresponding call to grab_release
                 
                 self.wait_window()
                 
