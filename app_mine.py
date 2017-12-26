@@ -1,8 +1,9 @@
-#coding = utf-8
 
-from helper import GameHelpers
+# -*- coding:utf-8 -*-
 
-from helper import level_config
+from helpers import GameHelpers
+
+from helpers import level_config
 
 import widgets
 
@@ -11,6 +12,10 @@ import static
 import tkinter as tk
 
 from core import Game
+
+from tkinter import messagebox
+
+import webbrowser
 
 
 
@@ -24,13 +29,13 @@ class App(tk.Frame):
         
         self.master.resizable(False, False)
         
-        self.master.iconbitmap(static.images(''))
+        # self.master.iconbitmap(static.images(''))
         
         self.pack(expand = tk.NO, fill = tk.BOTH)
         
         self.map_frame = None
         
-        mine_map = level_config.map('primary') #根据游戏等级获取游戏地图
+        mine_map = level_config.level_map('primary') #根据游戏等级获取地图信息 property: height, width, map_size, mine_number, mine_list, distribute_map
         
         self._create_map_frame(mine_map) #绘置地图
         
@@ -39,8 +44,8 @@ class App(tk.Frame):
         
     def create_top_menu(self):
         
-        top = self.winfo.tolevel()
-        
+        top = self.winfo_toplevel()
+               
         menu_bar = tk.Menu(top)
         
         top['menu'] = menu_bar
@@ -96,7 +101,7 @@ class App(tk.Frame):
     
         level = self.level.get()
         
-        mine_map = level_config.map(level)
+        mine_map = level_config.level_map(level)
         
         self._create_map_frame(mine_map)
         
@@ -112,7 +117,7 @@ class App(tk.Frame):
         self.map_frame.pack(side = tk.TOP)
         
      
-    def create_custom_map(self);
+    def create_custom_map(self):
     
         params = {
             
@@ -123,7 +128,7 @@ class App(tk.Frame):
             'mine_number': self.map_frame.game.mine_number
         }
         
-        return widgets.MapParamsInputDialog(self, callback = App.get_map_params, inital = params)
+        return widgets.MapParamsInputDialog(self, callback = App.get_map_params, initial = params)
         
         
     def get_map_params(self, params_dict):
@@ -169,7 +174,7 @@ class GameFrame(tk.Frame): #绘制控制面板(开始/重置/查看) 地图明�
                 self.bt_map[x][y] = tk.Button(self.map_frame, text='', width = 3, height = 1,
                     command = lambda px = x, py = y: self.sweep_mine(px, py))
                     
-                self.bt_map[x][y].config(static.style('grid.unknown'))
+                self.bt_map[x][y].config(static.get_style('grid.unknown'))
                 
                 
                 def _mark_mine(event, self = self, x = x, y = y):
@@ -186,180 +191,180 @@ class GameFrame(tk.Frame): #绘制控制面板(开始/重置/查看) 地图明�
         self._create_info_frame() #尾部的显示信息框
             
         
-        def _create_controller_frame(self): #控制面板：开始 重置 查看
+    def _create_controller_frame(self): #控制面板：开始 重置 查看
+    
+        self.controller_bar = tk.LabelFrame(self, text = 'control', padx = 5, pady =5)
         
-            self.controller_bar = tk.LabelFrame(self, text = 'control', padx = 5, pady =5)
-            
-            self.controller_bar.pack(side = tk.TOP, fill = tk.X, expand = tk.YES, padx = 10, pady = 2)
-            
-            self.start_button = tk.Button(controller_bar, text = 'start', relief = tk.GROOVE, command = self.start)
-            
-            self.start_button.pack(side = tk.LEFT, expand = tk.NO, padx = 4)
-            
-            self.reset_button = tk.Button(controller_bar, text = 'reset', relief = tk.GROOVE, command = self.reset)
-            
-            self.reset_button.pack(side = tk.LEFT, expand = tk.NO, padx = 4)
-            
-            self.check_button = tk.Button(controller_bar, text = 'check', relief = tk.GROOVE, command = self._show_map_info)
-            
-            self.check_button.pack(side = tk.LEFT, expand = tk.NO, padx = 4)
-            
+        self.controller_bar.pack(side = tk.TOP, fill = tk.X, expand = tk.YES, padx = 10, pady = 2)
         
-        def _show_map_info(self):
-            
-            map_info_str = 'current map size is : %d * %d \n mine numer is: %d. ' %(self.game.height, self.game.width, self.game.mine_number)
-            
-            messagebox.showInfo('current map ', map_info_str, parent = self)
+        self.start_button = tk.Button(self.controller_bar, text = 'start', relief = tk.GROOVE, command = self.start)
+        
+        self.start_button.pack(side = tk.LEFT, expand = tk.NO, padx = 4)
+        
+        self.reset_button = tk.Button(self.controller_bar, text = 'reset', relief = tk.GROOVE, command = self.reset)
+        
+        self.reset_button.pack(side = tk.LEFT, expand = tk.NO, padx = 4)
+        
+        self.check_button = tk.Button(self.controller_bar, text = 'check', relief = tk.GROOVE, command = self._show_map_info)
+        
+        self.check_button.pack(side = tk.LEFT, expand = tk.NO, padx = 4)
             
         
-        def _create_info_frame(self): #尾部的显示信息框：步数， 游戏时间，标记数, 提示信息
-            
-            self.info_frame = tk.LabelFrame(self, relief = tk.GROOVE, borderwidth = 2)
-            
-            self.info_frame.pack(side = tk.TOP, fill = tk.X, expand = tk.YES, padx = 10, pady = 5)
-            
-            self.step_text_label = tk.Lable(self.info_frame, text = 'step')
-            
-            self.step_text_label.pack(side = tk.LEFT, fill = tk.X, expand = tk.NO)
-            
-            self.step_count_lable = widgets.CounterLabel(self.info_frame, init_value = 0, step = 1)
-            
-            self.step_count_lable.pack(side = tk.LEFT, fill = tk.X, expand = tk.NO)
-            
-            self.timer_text_label = tk.Lable(self.info_frame, text = 'time')
-            
-            self.timer_text_label.pack(side = tk.LEFT, fill = tk.X, expand = tk.NO)
-            
-            self.timer_count_label = widgets.TimerLabel(self.info_frame)
-            
-            self.timer_count_label.pack(side = tk.LEFT, fill = tk.X, expand = tk.NO)            
-              
-            self.flag_text_label = tk.Lable(self.info_frame, text = 'flag')
-            
-            self.flag_text_label.pack(side = tk.LEFT, fill = tk.X, expand = tk.NO)
-            
-            self.flag_count_label = widgets.CounterLabel(self.info_frame, init_value=0, step=1)
-            
-            self.flag_count_label.pack(side = tk.LEFT, fill = tk.X, expand = tk.NO)
-            
-            self.msg_label = widgets.MessageLabel(self.info_frame)
-            
-            self.msg_label.pack(side = tk.RIGHT)
-            
-            
-        def start(self):
-            
-            mine_map = GameHelpers.create_from_mine_number(self.game.height, self.game.width, self.game.mine_number)
-            
-            self.game = Game(mine_map)
-            
-            self._drap_map()
-            
-            self.step_count_lable.set_counter_value() #初始步数为0
-            
-            self.flag_count_label.set_counter_value() #初始标记数为0
-            
-            self.timer_count_label.reset()  #初始计时为0
-            
-            self.msg_label.splash('游戏已经就绪')
-            
+    def _show_map_info(self):
+        
+        map_info_str = 'current map size is : %d * %d \n mine numer is: %d. ' %(self.game.height, self.game.width, self.game.mine_number)
+        
+        messagebox.showinfo('info-title', map_info_str, parent = self)
+        
+    
+    def _create_info_frame(self): #尾部的显示信息框：步数， 游戏时间，标记数, 提示信息
+        
+        self.info_frame = tk.Frame(self, relief = tk.GROOVE, borderwidth = 2)
+        
+        self.info_frame.pack(side = tk.TOP, fill = tk.X, expand = tk.YES, padx = 10, pady = 5)
+        
+        self.step_text_label = tk.Label(self.info_frame, text = 'step')        
+        
+        self.step_text_label.pack(side = tk.LEFT, fill = tk.X, expand = tk.NO)
+        
+        self.step_count_lable = widgets.CounterLabel(self.info_frame, init_value = 0, step = 1)
+        
+        self.step_count_lable.pack(side = tk.LEFT, fill = tk.X, expand = tk.NO)
+        
+        self.timer_text_label = tk.Label(self.info_frame, text = 'time')
+        
+        self.timer_text_label.pack(side = tk.LEFT, fill = tk.X, expand = tk.NO)
+        
+        self.timer_count_label = widgets.TimerLabel(self.info_frame)
+        
+        self.timer_count_label.pack(side = tk.LEFT, fill = tk.X, expand = tk.NO)            
           
-        def reset(self):
+        self.flag_text_label = tk.Label(self.info_frame, text = 'flag')
         
-            self.game.reset()
-            
-            self._drap_map()
-            
-            self.step_count_lable.set_counter_value() #初始步数为0
-            
-            self.flag_count_label.set_counter_value() #初始标记数为0
-            
-            self.timer_count_label.reset()  #初始计时为0
-            
-            self.msg_label.splash('游戏已经重置')
-            
+        self.flag_text_label.pack(side = tk.LEFT, fill = tk.X, expand = tk.NO)
         
-        def sweep_mine(self, x, y):
-            
-            if self.game.swept_state_map[x][y]:
-                
-                return
-                
-            if not self.timer_count_label.state:
-                
-                self.timer_count_label.start_timer()
-                
-            state = self.game.play((x, y))
-            
-            self.step_count_lable.set_counter_value(str(self.game.cur_step))
-            
-            self._drap_map()
-            
-            if state == Game.STATE_SUCCESS: #游戏成功
-                
-                self.timer_count_label.stop_timer()
-                
-                self.msg_label.splash('congratulation! you success')
-                
-                messagebox.showInfo('tips', 'congratulation!', parent = self)
-                
-            else state = Game.STATE_FAIL: #游戏失败
-                
-                self.timer_count_label.stop_timer()
-                
-                self.msg_label.splash('sorry you failed!')
-                
-                messagebox.showInfo('tips', 'sorry you are failed', paren = self)
-                
+        self.flag_count_label = widgets.CounterLabel(self.info_frame, init_value=0, step=1)
         
-        def mark_grid_as_mine(self, event, x, y):
-            
-            if self.game.state == Game.STATE_PLAY and not self.game.swept_state_map[x][y]:
-            
-                cur_text = self.bt_map[x][y]  #取地图button的值
-                
-                if cur_text == '?':
-                    
-                    cur_text = ''
-                    
-                    self.flag_count_label.decrease() #标记数减1
-                    
-                else cur_text = ''
-                
-                    cur_text = '?'
-                
-                    self.flag_count_label.increase() #标记数加1
-                    
-                self.bt_map[x][y]['text'] = cur_text
-                    
+        self.flag_count_label.pack(side = tk.LEFT, fill = tk.X, expand = tk.NO)
         
-        def _drap_map(self):
+        self.msg_label = widgets.MessageLabel(self.info_frame)
+        
+        self.msg_label.pack(side = tk.RIGHT)
+        
+        
+    def start(self):
+        
+        mine_map = GameHelpers.create_from_mine_number(self.game.height, self.game.width, self.game.mine_number)
+        
+        self.game = Game(mine_map)
+        
+        self._drap_map()
+        
+        self.step_count_lable.set_counter_value() #初始步数为0
+        
+        self.flag_count_label.set_counter_value() #初始标记数为0
+        
+        self.timer_count_label.reset()  #初始计时为0
+        
+        self.msg_label.splash('游戏已经就绪')
+        
+      
+    def reset(self):
+    
+        self.game.reset()
+        
+        self._drap_map()
+        
+        self.step_count_lable.set_counter_value() #初始步数为0
+        
+        self.flag_count_label.set_counter_value() #初始标记数为0
+        
+        self.timer_count_label.reset()  #初始计时为0
+        
+        self.msg_label.splash('游戏已经重置')
+        
+    
+    def sweep_mine(self, x, y):
+        
+        if self.game.swept_state_map[x][y]:
             
-            for i in range(0, self.game.height):
+            return
+            
+        if not self.timer_count_label._state:
+            
+            self.timer_count_label.start_timer()
+            
+        state = self.game.play((x, y))
+        
+        self.step_count_lable.set_counter_value(str(self.game.cur_step))
+        
+        self._drap_map()
+        
+        if state == Game.STATE_SUCCESS: #游戏成功
+            
+            self.timer_count_label.stop_timer()
+            
+            self.msg_label.splash('congratulation! you success')
+            
+            messagebox.showinfo('tips', 'congratulation!', parent = self)
+            
+        elif state == Game.STATE_FAIL: #游戏失败
+            
+            self.timer_count_label.stop_timer()
+            
+            self.msg_label.splash('sorry you failed!')
+            
+            messagebox.showinfo('tips', 'sorry you are failed', paren = self)
+            
+    
+    def mark_grid_as_mine(self, event, x, y):
+        
+        if self.game.state == Game.STATE_PLAY and not self.game.swept_state_map[x][y]:
+        
+            cur_text = self.bt_map[x][y]  #取地图button的值
+            
+            if cur_text == '?':
                 
-                for j in range(0, self.game.width):
+                cur_text = ''
+                
+                self.flag_count_label.decrease() #标记数减1
+                
+            elif cur_text == '':
+            
+                cur_text = '?'
+            
+                self.flag_count_label.increase() #标记数加1
+                
+            self.bt_map[x][y]['text'] = cur_text
+                
+    
+    def _drap_map(self):
+        
+        for i in range(0, self.game.height):
+            
+            for j in range(0, self.game.width):
+                
+                if self.game.swept_state_map[i][j]:
+                
+                    if self.game.mine_map.is_mine((i,j)):
                     
-                    if self.game.swept_state_map[i][j]:
+                        self.bt_map[i][j].config(static.get_style('grid.mine'))
                     
-                        if self.game.mine_map.is_mine((i,j))
-                        
-                            self.bt_map[i][j].config(static.style('grid.mine'))
-                        
-                        else:
-                            
-                            tmp = self.game.mine_map.distribute_map[i][j]
-                            
-                            self.bt_map[i][j].config(static.style('grid.swept', num = tmp))
                     else:
                         
-                        if self.bt_map[i][j]['text'] == '?':
-                            
-                            self.bt_map[i][j].config(static.style('grid.marked'))
-                            
-                        else:
-                            
-                            self.bt_map[i][j].config(static.style('grid.unknown'))
+                        tmp = self.game.mine_map.distribute_map[i][j]
                         
+                        self.bt_map[i][j].config(static.get_style('grid.swept', num = tmp))
+                else:
+                    
+                    if self.bt_map[i][j]['text'] == '?':
+                        
+                        self.bt_map[i][j].config(static.get_style('grid.marked'))
+                        
+                    else:
+                        
+                        self.bt_map[i][j].config(static.get_style('grid.unknown'))
+                    
                     
 def main():
       

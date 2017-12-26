@@ -1,4 +1,5 @@
 #coding = utf-8
+# -*- coding: utf-8 -*-
 
 import  tkinter as tk
 
@@ -6,7 +7,7 @@ from tkinter import messagebox
 
 from io import open
 
-class CounterLabel(tk.label):
+class CounterLabel(tk.Label):
     
     def __init__(self, parent, init_value = 0, step = 1, **kwargs):
     
@@ -14,7 +15,7 @@ class CounterLabel(tk.label):
         
         self._count_value.set(init_value)
         
-        tk.label.__init__(self, parent, textvariable = self._count_value, **kwargs)
+        tk.Label.__init__(self, parent, textvariable = self._count_value, **kwargs)
         
         self._step = step
         
@@ -62,12 +63,12 @@ class TimerLabel(CounterLabel):
             
             self.increase()
             
-            self._timer_id = self.after(1000, _timer) # every 1 sec trigger _timer
+            self._timer_id = self.after(1000, self._timer) # every 1 sec trigger _timer
         
         
     def start_timer(self):
         
-        if not self.state:
+        if not self._state:
             
             self._state = True
             
@@ -94,7 +95,7 @@ class TimerLabel(CounterLabel):
         
     @property
     
-    def timer_state()
+    def timer_state():
         
         return self._state
 
@@ -107,11 +108,11 @@ class MapParamsInputDialog(tk.Toplevel):
         
         initial = initial or {'width' : 10, 'height': 10, 'mine_number': 10}
         
-        self.height = tk.Intvar(value = initial['height'])
+        self.height = tk.IntVar(value = initial['height'])
         
         self.width = tk.IntVar(value = initial['width'])
         
-        self.mine_number = tk.Intvar(value = initial['mine_number'])
+        self.mine_number = tk.IntVar(value = initial['mine_number'])
         
         self.validate_msg = tk.StringVar()
         
@@ -174,11 +175,11 @@ class MapParamsInputDialog(tk.Toplevel):
                 
                 height, width, mine_number = int(self.height.get()), int(self.width.get()), int(self.mine_number.get())
             
-            except: ValueError
+            except ValueError:
             
                 self.validate_msg.set('please input integer number')
                 
-            if height < 3 pr width < 3:
+            if height < 3 or width < 3:
                 
                 self.validate_msg.set('must be over 3')
                 
@@ -302,7 +303,7 @@ def view_file(parent, title, fileName, model = True):
     
     try:
         
-        text_file = open(fileName, 'r', encodeing = 'utf-8')
+        text_file = open(fileName, 'r', encoding = 'utf-8')
     
     except IOError:
     
@@ -314,13 +315,3 @@ def view_file(parent, title, fileName, model = True):
 
         
   
-        
-        
-        
-if __init__ == '__main__':
-    
-    root = tk()
-    
-    coutner = CounterLabel(root)
-    
-    root.mainloop()

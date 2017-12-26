@@ -2,23 +2,25 @@
 
 import Queue as queue
 
-class Map(object):
+class Core_Map(object):
     
     MINE_FLAG = 1
     
-    def __init__(self, height, width, mine_pos_list)
+    def __init__(self, height, width, mine_pos_list):
         
         self._height = height
         
         self._width = width
         
-        self._mine_list = list(set(mine_pos_list))
+        self._mine_list = list(set(mine_pos_list)) #地雷的位置
+
+        print ('mine pos list: %s' %self._mine_list)
         
         self._generate_distribute_map()
         
     
     @property
-    def height(self)
+    def height(self):
         
         return self._height
     
@@ -36,40 +38,75 @@ class Map(object):
     
     @property
     
-    def map_list(self):
+    def mine_list(self):
         
         return self._mine_list
     
     @property
     
-    def map_number(self):
+    def mine_number(self):
         
         return len(self._mine_list)
         
     @property
     
-    def distribut_map(self):    
+    def distribute_map(self):    
         
         return self._distribute_map
         
         
     def _generate_distribute_map(self):
         
+        # count_add = 0
+        
+        # count_one = 0
+        
+        # count_zero = 0        
+        
         self._distribute_map = [[0 for _ in range(0, self.width)] for _ in range(0, self.height)]
         
-        offset_step = [(-1, -1), (-1, 0), (-1, 1), (0, 1), (1, 1), (1, 0), (1, -1), (0, -1)]
+        offset_step = [(-1, -1), (-1, 0), (-1, 1), (0, 1), (1, 1), (1, 0), (1, -1), (0, -1)]  #相邻的8个位置上下左右移动
         
         for t_x, t_y in self._mine_list:
             
-            self._distribute_map[t_x][t_y] = Map.MINE_FLAG
+            self._distribute_map[t_x][t_y] = Core_Map.MINE_FLAG
             
             for o_x, o_y in offset_step:
                 
-                d_x, d_y = o_x + t_x, o_y +_t_y
+                d_x, d_y = o_x + t_x, o_y + t_y                       
                 
-                if self.is_in_map((d_x, d_y)) and self._distribute_map[d_x][d_y] != Map.MINE_FLAG
+                if self.is_in_map((d_x, d_y)) and self._distribute_map[d_x][d_y] != Core_Map.MINE_FLAG:
+                
+                    # count_add += 1                                        
                 
                     self._distribute_map[d_x][d_y] += 1
+        
+        # for _ditribute in self._distribute_map:
+        
+            # print ('_distribute_map is : %s' %_ditribute)
+            
+        # print '-----------'
+            
+        # for x in range(0, self.height):
+            
+            # for y in range(0, self.width):
+                
+                # if self._distribute_map[x][y] == 1:
+                
+                    # count_one += 1
+                
+                # else:
+                
+                    # count_zero += 1
+                
+            
+        # print 'count_add = %d ' %count_add
+        
+        # print 'count_one = %d ' %count_one
+        
+        # print 'count_zero = %d ' %count_zero
+
+
                     
     
     def is_in_map(self, pos,offset = None):
@@ -81,6 +118,10 @@ class Map(object):
         else:
             
             x, y = pos
+            
+        if (x in range(0, self.height) and y in range(0, self.width)) != True:
+            
+            print x, y
             
         return x in range(0, self.height) and y in range(0, self.width)    
         
@@ -118,7 +159,7 @@ class Game(object):
     
     def _init_game(self):
         
-        self._swept_state_map = [[False for _ in range(0, _mine_map.width)] for _ in range(0 ,self._mine_map.height)]
+        self._swept_state_map = [[False for _ in range(0, self._mine_map.width)] for _ in range(0 ,self._mine_map.height)]
         
         self._not_swept_number = self._mine_map.map_size
         
@@ -162,31 +203,31 @@ class Game(object):
     
     def swept_state_map(self):
         
-        return _swept_state_map
+        return self._swept_state_map
         
     @property
     
     def height(self):
         
-        return _mine_map.height
+        return self._mine_map.height
         
-     @property
-     
-     def width(self):
-        
+    @property
+
+    def width(self):
+
         return self._mine_map.width
         
     @property
     
     def mine_number(self):
         
-        return _mine_map.mine_number
+        return self._mine_map.mine_number
         
     @property
     
     def mine_map(self):
         
-        return _mine_map
+        return self._mine_map
         
         
     def _sweep(self, click_pos):
@@ -210,7 +251,7 @@ class Game(object):
             
         near_mine_number = self._mine_map.get_near_mine_number(click_pos)
         
-        if near_mine_number == Map.MINE_FLAG:
+        if near_mine_number == Core_Map.MINE_FLAG:
             
             self._not_swept_number -= 1
             
@@ -260,7 +301,7 @@ class Game(object):
                         
                         near_mine_number = self._mine_map.get_near_mine_number((d_x, d_y))
                         
-                        if near_mine_number == Map.MINE_FLAG:
+                        if near_mine_number == Core_Map.MINE_FLAG:
                             
                             pass
                         
